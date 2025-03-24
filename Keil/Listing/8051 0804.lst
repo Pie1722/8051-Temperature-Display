@@ -1,0 +1,296 @@
+A51 MACRO ASSEMBLER  8051_0804                                                            03/24/2025 16:06:57 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.7.0
+OBJECT MODULE PLACED IN .\Objects\8051 0804.obj
+ASSEMBLER INVOKED BY: D:\Programs\Windows\Install_dir\KeilC51\C51\BIN\A51.EXE 8051 0804.a51 SET(SMALL) DEBUG PRINT(.\Lis
+                      tings\8051 0804.lst) OBJECT(.\Objects\8051 0804.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     ;===================================================================
+                       2     ; R0 -> QUOTIENT STORAGE (50H TO 52H)
+                       3     ; R1 -> REMAINDER STORAGE (60H TO 64H) 
+                       4     ; R2 -> USED AS TEMP STORAGE OF SWAPPED REMAINDER FOR OR OPERATION
+                       5     ; R3 -> USED FOR LOOP COUNTER
+                       6     ; R4 -> STORAGE FOR HIGHER BYTE
+                       7     ; R5 -> STORAGE FOR LOWER BYTE
+                       8     
+                       9     ; ASCII_LCD =======================
+                      10     ; R0 -> USED FOR GETTING VALUES FROM 64H TO 60H 
+                      11     ; R7 -> USED FOR LOOP COUNTER
+                      12     
+                      13     ; DELAY ==========================
+                      14     ; R3 & R4 USED FOR LOOP COUNTER 
+                      15     
+0000                  16     ORG 0H
+0000 020100           17     LJMP START      
+                      18     
+0100                  19     ORG 100H
+0100                  20     START:
+                      21     
+                      22     ;-------------------------------------
+                      23     ;LCD INITIALIZATION ------------------
+                      24     ;-------------------------------------
+                      25     
+0100 7438             26         MOV A, #38H   ; Initialize LCD for 2 lines, 5x7 matrix
+0102 1201E9           27         LCALL COMNWRT
+0105 740C             28         MOV A, #0CH   ; Display ON, Cursor OFF, Blink OFF
+0107 1201E9           29         LCALL COMNWRT
+010A 7401             30         MOV A, #01H   ; Clear LCD display
+010C 1201E9           31         LCALL COMNWRT
+010F 7406             32         MOV A, #06H   ; Shift cursor to the right
+0111 1201E9           33         LCALL COMNWRT
+0114 7480             34         MOV A, #80H   ; Set cursor at Line 1, Column 1 (Corrected)
+0116 1201E9           35         LCALL COMNWRT        ; Call command write subroutine
+0119 7454             36         MOV A, #'T'          ; Display letter 'T'
+011B 1201F6           37         LCALL DATAWRT        ; Call data write subroutine
+011E 7445             38         MOV A, #'E'          ; Display letter 'E'
+0120 1201F6           39         LCALL DATAWRT        ; Call data write subroutine
+0123 744D             40         MOV A, #'M'          ; Display letter 'M'
+0125 1201F6           41         LCALL DATAWRT        ; Call data write subroutine
+0128 7450             42         MOV A, #'P'          ; Display letter 'P'
+012A 1201F6           43         LCALL DATAWRT        ; Call data write subroutine
+012D 7445             44         MOV A, #'E'          ; Display letter 'E'
+012F 1201F6           45         LCALL DATAWRT        ; Call data write subroutine
+0132 7452             46         MOV A, #'R'          ; Display letter 'R'
+0134 1201F6           47         LCALL DATAWRT        ; Call data write subroutine
+0137 7441             48         MOV A, #'A'          ; Display letter 'A'
+0139 1201F6           49         LCALL DATAWRT        ; Call data write subroutine
+013C 7454             50         MOV A, #'T'          ; Display letter 'T'
+013E 1201F6           51         LCALL DATAWRT        ; Call data write subroutine
+0141 7455             52         MOV A, #'U'          ; Display letter 'U'
+0143 1201F6           53         LCALL DATAWRT        ; Call data write subroutine
+0146 7452             54         MOV A, #'R'          ; Display letter 'R'
+0148 1201F6           55         LCALL DATAWRT        ; Call data write subroutine
+014B 7445             56         MOV A, #'E'          ; Display letter 'E'
+014D 1201F6           57         LCALL DATAWRT        ; Call data write subroutine
+A51 MACRO ASSEMBLER  8051_0804                                                            03/24/2025 16:06:57 PAGE     2
+
+0150 743A             58         MOV A, #':'          ; Display colon ':'
+0152 1201F6           59         LCALL DATAWRT        ; Call data write subroutine
+0155 742D             60         MOV A, #'-'          ; Display '-'
+0157 1201F6           61         LCALL DATAWRT        ; Call data write subroutine
+015A 74C8             62         MOV A, #0C8H         ; Set cursor at line 2, position 1
+015C 1201E9           63         LCALL COMNWRT        ; Call command write subroutine
+015F 74DF             64         MOV A,#0DFH          ; Degree Symbol
+0161 1201F6           65         LCALL DATAWRT
+0164 7443             66         MOV A,#'C'                  
+0166 1201F6           67         LCALL DATAWRT
+                      68     
+                      69     ;================================================================
+                      70     
+                      71        ; LABELS FOR PINS OF ADC 0804
+                      72           
+  00B0                73             CS BIT P3.0
+  00B1                74             RD_PIN BIT P3.1
+  00B2                75             WR_PIN BIT P3.2
+  00B3                76             INTR BIT P3.3
+  0090                77             OUTPUT EQU P1
+                      78             
+0169 7590FF           79             MOV OUTPUT, #0FFH ; Configure P1 as input
+                      80             
+016C                  81     LOOP:
+                      82             
+016C 74C2             83             MOV A, #0C2H         ; Set cursor at line 2, position 1
+016E 1201E9           84             LCALL COMNWRT        ; Call command write subroutine
+                      85             
+                      86             ;---- ADC 0804 ---------------------------------------
+                      87             
+0171 C2B0             88              CLR CS                 ; Select ADC (Active Low)
+0173 C2B2             89              CLR WR_PIN             ; WR = 0 (Start conversion)
+0175 D2B2             90              SETB WR_PIN            ; WR = 1 (End write - Start conversion)
+0177 D2B0             91              SETB CS
+                      92          
+0179 20B3FD           93              JB INTR, $     ; Wait for conversion to complete (INTR = 0 means busy)
+                      94     
+                      95              ; Once INTR is high, conversion is done
+017C C2B0             96              CLR CS                 ; Keep CS low during read (select ADC)
+017E C2B1             97              CLR RD_PIN             ; RD = 0 (Initiate ADC read)
+0180 00               98              NOP
+0181 E590             99              MOV A, OUTPUT          ; Store ADC data in Accumulator (A)
+                     100              ;MOV P0, A             ; CHECK OUTPUT AT PORT 0 FOR DEBUGGING
+0183 D2B1            101              SETB RD_PIN             ; RD = 0 (Initiate ADC read)
+0185 D2B0            102              SETB CS                ; Deselect ADC (CS = 1)
+                     103     
+                     104             ;-----------------------------------------------------
+                     105                     ;MOV A, #0AEH;
+                     106                       
+0187 75F03B          107                     MOV B, #59; CONST 59 LM35 (150/255)
+018A A4              108                     MUL AB; MULTIPLY CONST AND O/P OF PORT1
+018B ACF0            109                     MOV R4, B; MOVE HIGHER BYTE TO R4
+018D FD              110                     MOV R5, A; MOVE LOWER BYTE TO R5
+                     111                     
+018E 7850            112                     MOV R0, #50H; QUOTIENT STORAGE
+0190 7960            113                     MOV R1,#60H; REMAINDER STORAGE
+                     114                     
+                     115             ;------------------------------------------------------
+                     116             
+0192                 117                     DIV_LOOP:
+0192 31B3            118                             ACALL DIVV; CALL THE DIV SUBROUTINE AT LINE 39
+0194 AC50            119                             MOV R4, 50H; MOVE THE FIRST QUOTIENT TO R4
+0196 E551            120                             MOV A, 51H; MOVE THE SECOND QUOTIENT TO A
+0198 C4              121                             SWAP A; SWAP THE BITS OF ACC EX- 1000 0010 = 0010 1000
+0199 4552            122                             ORL A, 52H; OR OPERATION FOR ADDING THE PAST REMAINDER WITH NEW DIV
+                             IDEND 
+A51 MACRO ASSEMBLER  8051_0804                                                            03/24/2025 16:06:57 PAGE     3
+
+019B FD              123                             MOV R5, A; MOVE THE NEW DIVIDEND TO LOWER BYTE (ALSO THE FINAL QUOT
+                             IENT)
+019C 7850            124                             MOV R0, #50H; RESET THE R0 REGISTER FOR STORING THE QUOTIENT OF NEX
+                             T NUMBERS
+019E 09              125                             INC R1; increment for storing all the remainders
+019F F7              126                             MOV @R1, A; SAVE THE QUOTIENT 
+01A0 EC              127                             MOV A, R4; MOVE THE FIRST QUOTIENT TO ACC FOR CHECKING 
+01A1 70EF            128                             JNZ DIV_LOOP ; IF THE ACC IN NOT ZERO THEN CONTINUE LOOP ELSE NEXT 
+                             LINE
+01A3 ED              129                             MOV A, R5; final quotient
+01A4 C3              130                             CLR C; CLEAR THE CARRY FLAG FOR SUBB
+01A5 940A            131                             SUBB A,#0AH; CHECK IF THE QUOTIENT IS LESS THAN 0AH TO SEE IF ITS D
+                             ECIMAL OR NOT
+01A7 50E9            132                             JNC DIV_LOOP; IF CARRY IS NOT SET , THEN CONTINUE DIVISION , IF CAR
+                             RY IS SET THE FINAL QUOTIENT IS DECIMAL                      
+                     133                             
+01A9 31D3            134                     ACALL ASCII_LCD; CALL THE ASCII SUBROUTINE TO CONVERT DECIMAL INTO ASCII AN
+                             D PRINT IN LCD
+                     135                     
+                     136                     ; CLEAR THE 64H AND 63H MEMORY LOCATION TO CLEAR THE MEMORY IF THE NEXT NUM
+                             BER DOES NOT OVERWRITE -
+                     137                     ; - THE DATA OF THE MEMORY LOCATION THEN THE PAST DATA WILL BE THERE AND TH
+                             E TEMPERATURE WONT BE CORRECLTY DISPLAYED
+01AB 756400          138                     MOV 64H, #00H
+01AE 756300          139                     MOV 63H, #00H
+                     140                     
+01B1 80B9            141     SJMP LOOP ; CONTINUE THE LOOP FOREVER
+                     142                     
+                     143     ;------------------------------------------------------------------------------------------
+                             -------------------
+                     144     
+                     145     
+                     146     ;-------------------------------
+                     147     ; DIVISION SUBROUTINE
+                     148     ;-------------------------------
+                     149     
+01B3                 150                     DIVV:
+01B3 EC              151                             MOV A, R4; MOVE HIGHER BYTE TO ACC FOR FIRST DIV
+01B4 75F00A          152                             MOV B, #0AH; MOVE 10 TO B
+01B7 7B03            153                             MOV R3, #3; LOOP COUNTER FOR DIVISIONS
+01B9                 154                             JUUMP: 
+01B9 84              155                                     DIV AB; DIV A WITH 0x0A
+01BA F6              156                                     MOV @R0, A; SAVE QUOTIENT FROM 0x50
+01BB 08              157                                     INC R0; INCREMENT FOR THE NEXT QUOTIENT
+01BC A7F0            158                                     MOV @R1, B; SAVE THE REMAINDER FROM 0x60
+01BE E7              159                                     MOV A, @R1; MOVE THE REMAINDER TO A FOR SWAPPING THE BITS
+01BF C4              160                                     SWAP A; SWAP THE BITS OF ACC EX- 1000 0010 = 0010 1000
+01C0 FA              161                                     MOV R2, A; SAVE THE BYTE TO R2 FOR FURTHER OPERATION
+01C1 ED              162                                     MOV A, R5; MOVE THE LOWER BYTE FOR DIVISION
+01C2 75F010          163                                     MOV B,#10H 
+01C5 84              164                                     DIV AB; DIVIDE THE NUM WITH 10H
+                     165             
+01C6 BB0202          166                                     CJNE R3, #2, SKIP
+01C9 E5F0            167                                     MOV A, B
+                     168             
+01CB                 169                                     SKIP:
+01CB 4A              170                                             ORL A,R2; ORL OPERATION TO ADD 
+01CC 75F00A          171                                             MOV B, #0AH; MOVE 0AH FOR NEXT DIVISION
+01CF C3              172                                             CLR C; CLEAR THE CARRY FLAG
+01D0 DBE7            173                             DJNZ R3, JUUMP; KEEP THE LOOP FOR 3 ITERATIONS
+01D2 22              174                     RET
+                     175                     
+                     176     ;======================================
+                     177     ; ASCII SUBROUTINE
+                     178     ;=======================================
+                     179                     
+A51 MACRO ASSEMBLER  8051_0804                                                            03/24/2025 16:06:57 PAGE     4
+
+01D3                 180     ASCII_LCD:
+01D3 7864            181        MOV R0, #64H                 
+01D5 7F05            182        MOV R7, #5
+                     183                             
+01D7                 184        JUMP_ASCII:  
+01D7 E6              185           MOV A, @R0
+01D8 2430            186           ADD A, #30H
+01DA 1201F6          187           LCALL DATAWRT        ; Call data write subroutine
+01DD 18              188           DEC R0
+01DE BF0305          189           CJNE R7, #3, JMPP
+01E1 742E            190           MOV A,#"."
+01E3 1201F6          191           LCALL DATAWRT
+01E6 DFEF            192           JMPP:DJNZ R7, JUMP_ASCII
+01E8 22              193     RET     
+                     194     
+                     195     ; ==============================
+                     196     ; Command Write Subroutine
+                     197     ; ============================
+01E9                 198     COMNWRT:
+01E9 5103            199         ACALL DELAY          ; Prepare for sending command to LCD
+01EB F5A0            200         MOV P2, A            ; Copy content of register A to port 1
+01ED C2B4            201         CLR P3.4             ; Set RS = 0 for command mode
+01EF C2B5            202         CLR P3.5             ; Set R/W = 0 for write mode
+01F1 D2B6            203         SETB P3.6            ; Set E high for pulse
+01F3 C2B6            204         CLR P3.6             ; Set E low for H-to-L pulse
+01F5 22              205         RET
+                     206     
+                     207     ; =============================
+                     208     ; Data Write Subroutine
+                     209     ; =============================
+01F6                 210     DATAWRT:
+01F6 5103            211         ACALL DELAY          ; Prepare for writing data to LCD
+01F8 F5A0            212         MOV P2, A            ; Copy content of register A to port 2
+01FA D2B4            213         SETB P3.4            ; Set RS = 1 for data mode
+01FC C2B5            214         CLR P3.5             ; Set R/W = 0 for write mode
+01FE D2B6            215         SETB P3.6            ; Set E high for pulse
+0200 C2B6            216         CLR P3.6             ; Set E low for H-to-L pulse
+0202 22              217         RET
+                     218     
+                     219     
+                     220     ; =============================
+                     221     ; Delay Subroutine
+                     222     ; =============================
+0203                 223     DELAY:
+0203 7B0A            224         MOV R3, #10          ; Set outer loop count (50 or higher for fast CPUs)
+0205                 225     HERE2:
+0205 7C1E            226         MOV R4, #30         ; Set inner loop count (255)
+0207                 227     HERE:
+0207 DCFE            228         DJNZ R4, HERE        ; Decrement R4 and repeat until it reaches 0
+0209 DBFA            229         DJNZ R3, HERE2       ; Decrement R3 and repeat until it reaches 0
+020B 22              230         RET
+                     231             
+                     232     END
+                             
+A51 MACRO ASSEMBLER  8051_0804                                                            03/24/2025 16:06:57 PAGE     5
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+ASCII_LCD. . . . .  C ADDR   01D3H   A   
+B. . . . . . . . .  D ADDR   00F0H   A   
+COMNWRT. . . . . .  C ADDR   01E9H   A   
+CS . . . . . . . .  B ADDR   00B0H.0 A   
+DATAWRT. . . . . .  C ADDR   01F6H   A   
+DELAY. . . . . . .  C ADDR   0203H   A   
+DIVV . . . . . . .  C ADDR   01B3H   A   
+DIV_LOOP . . . . .  C ADDR   0192H   A   
+HERE . . . . . . .  C ADDR   0207H   A   
+HERE2. . . . . . .  C ADDR   0205H   A   
+INTR . . . . . . .  B ADDR   00B0H.3 A   
+JMPP . . . . . . .  C ADDR   01E6H   A   
+JUMP_ASCII . . . .  C ADDR   01D7H   A   
+JUUMP. . . . . . .  C ADDR   01B9H   A   
+LOOP . . . . . . .  C ADDR   016CH   A   
+OUTPUT . . . . . .  D ADDR   0090H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+P3 . . . . . . . .  D ADDR   00B0H   A   
+RD_PIN . . . . . .  B ADDR   00B0H.1 A   
+SKIP . . . . . . .  C ADDR   01CBH   A   
+START. . . . . . .  C ADDR   0100H   A   
+WR_PIN . . . . . .  B ADDR   00B0H.2 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)
