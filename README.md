@@ -1,6 +1,11 @@
 # Temperature-Display-using-8051
  This project was programmed in keil uVision 5 and the simulation was done is Proteus
 
+ It requires coversion if 16 bit hexadecimal number to decimal number. Multiplication of the values getting from ADC with constant 59 is required for the proper values to be converted.
+
+ LM35 sensor max output is 255 Decimal or FF HEX at 150°C . So 150/255 = 0.5882352941176471 for which we store 59 as constant at the start of multiplication.
+ The code for conversion of HEX to DECIMAL is provided at KEIL_DIV Folder.
+
 
 # Circuit Schematic
 
