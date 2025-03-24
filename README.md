@@ -11,6 +11,12 @@
 
  ![image](https://github.com/user-attachments/assets/8714311c-b4a4-4a83-b304-25cd86ac6d96)
 
+ 
+
+https://github.com/user-attachments/assets/7c52b8ff-2e1d-4e30-a17e-e1210c6bced4
+
+
+
 
 # Registers Used In 8051
 
