@@ -4,8 +4,11 @@
  It requires coversion if 16 bit hexadecimal number to decimal number. Multiplication of the values getting from ADC with constant 59 is required for the proper values to be converted.
 
  LM35 sensor max output is 255 Decimal or FF HEX at 150°C. The LM35 gives output of 10mV/°C with a maximum of 1.5V at 150°C.
- Vref/2 of ADC0804 has input of 0.79V. I wanted to give Vref/2 0.75V for the vref to be 1.5V which is equal to the output of LM35 but practically i didnt had enough components so I used 0.79V as vref/2. 
+ 
+ Vref/2 of ADC0804 has input of 0.79V. I wanted to give Vref/2 0.75V for the vref to be 1.5V which is equal to the output of LM35 but practically i didnt had enough components so I used 0.79V as vref/2.
+ 
  So vref is 1.58 and i.e 1.58/256 = 0.006177875 for which we store 61 as constant at the start of multiplication.
+ 
  The code for conversion of HEX to DECIMAL is provided at KEIL_DIV Folder.
 
 Delay Calculation:
