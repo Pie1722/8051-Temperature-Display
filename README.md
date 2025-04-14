@@ -1,4 +1,5 @@
 # Temperature-Display-using-8051
+
  This project was programmed in keil uVision 5 and the simulation was done is Proteus
 
  It requires coversion if 16 bit hexadecimal number to decimal number. Multiplication of the values getting from ADC with constant 59 is required for the proper values to be converted.
@@ -30,9 +31,11 @@ Total iterations of DJNZ R5, D3 = 20
 So, the total number of DJNZ R3, D1 executions = 250 × 250 × 20 = 1,250,000
 
 Each DJNZ R3, D1 takes 2 µs →
+
 1,250,000 × 2 µs = 2.5 seconds
 
 R4 and R5 add neglibile delay so it is around 2.5s to 2.6s
+
 To generate perfect delay usage of timer is required.
 
 # Circuit Schematic
