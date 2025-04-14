@@ -11,7 +11,7 @@
  
  The code for conversion of HEX to DECIMAL is provided at KEIL_DIV Folder.
 
-#Delay Calculation:
+# Delay Calculation:
 
 To estimate the total time delay, we assume the 8051 runs with a 12 MHz clock, and each instruction takes 1 machine cycle (1 µs) unless otherwise stated.
 
