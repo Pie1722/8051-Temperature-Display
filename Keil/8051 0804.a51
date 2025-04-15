@@ -29,9 +29,9 @@ START:
     LCALL COMNWRT
     MOV A, #01H   ; Clear LCD display
     LCALL COMNWRT
-    MOV A, #06H   ; Shift cursor to the right
+	MOV A, #06H   ; Shift cursor to the right
     LCALL COMNWRT
-    MOV A, #80H   ; Set cursor at Line 1, Column 1 (Corrected)
+    MOV A, #82H   ; Set cursor at Line 1, Column 1 (Corrected)
     LCALL COMNWRT        ; Call command write subroutine
     MOV A, #'T'          ; Display letter 'T'
     LCALL DATAWRT        ; Call data write subroutine
@@ -57,9 +57,8 @@ START:
     LCALL DATAWRT        ; Call data write subroutine
     MOV A, #':'          ; Display colon ':'
     LCALL DATAWRT        ; Call data write subroutine
-    MOV A, #'-'          ; Display '-'
-    LCALL DATAWRT        ; Call data write subroutine
-    MOV A, #0C8H         ; Set cursor at line 2, position 1
+	
+    MOV A, #0CAH         ; Set cursor at line 2, position 1
     LCALL COMNWRT        ; Call command write subroutine
     MOV A,#0DFH		 ; Degree Symbol
     LCALL DATAWRT
@@ -80,7 +79,7 @@ START:
 	
 LOOP:
 	
-	MOV A, #0C2H         ; Set cursor at line 2, position 1
+	MOV A, #0C4H         ; Set cursor at line 2, position 1
 	LCALL COMNWRT        ; Call command write subroutine
 	
 	;---- ADC 0804 ---------------------------------------
@@ -92,19 +91,18 @@ LOOP:
      
 	 JB INTR, $     ; Wait for conversion to complete (INTR = 0 means busy)
 
-	 ; Once INTR is high, conversion is done
+	  ;Once INTR is high, conversion is done
 	 CLR CS                 ; Keep CS low during read (select ADC)
 	 CLR RD_PIN             ; RD = 0 (Initiate ADC read)
-	 NOP
 	 MOV A, OUTPUT          ; Store ADC data in Accumulator (A)
-	 ;MOV P0, A		; CHECK OUTPUT AT PORT 0 FOR DEBUGGING
-	 SETB RD_PIN             ; RD = 0 (Initiate ADC read)
+	 MOV P0, A		; CHECK OUTPUT AT PORT 0 FOR DEBUGGING
+	 SETB RD_PIN            
 	 SETB CS                ; Deselect ADC (CS = 1)
 
 	;-----------------------------------------------------
 	        ;MOV A, #0AEH;
 		  
-		MOV B, #59; CONST 59 LM35 (150/255)
+		MOV B, #61; CONST 61 LM35 (1.59/255)
 		MUL AB; MULTIPLY CONST AND O/P OF PORT1
 		MOV R4, B; MOVE HIGHER BYTE TO R4
 		MOV R5, A; MOVE LOWER BYTE TO R5
@@ -138,6 +136,8 @@ LOOP:
 		MOV 64H, #00H
 		MOV 63H, #00H
 		
+		ACALL DELAY_3_SEC
+
 SJMP LOOP ; CONTINUE THE LOOP FOREVER
 		
 ;-------------------------------------------------------------------------------------------------------------
@@ -196,24 +196,26 @@ RET
 ; Command Write Subroutine
 ; ============================
 COMNWRT:
-    ACALL DELAY          ; Prepare for sending command to LCD
     MOV P2, A            ; Copy content of register A to port 1
     CLR P3.4             ; Set RS = 0 for command mode
     CLR P3.5             ; Set R/W = 0 for write mode
     SETB P3.6            ; Set E high for pulse
+	ACALL DELAY          ; Prepare for sending command to LCD
     CLR P3.6             ; Set E low for H-to-L pulse
-    RET
+    ACALL DELAY          ; Prepare for sending command to LCD
+	RET
 
 ; =============================
 ; Data Write Subroutine
 ; =============================
 DATAWRT:
-    ACALL DELAY          ; Prepare for writing data to LCD
     MOV P2, A            ; Copy content of register A to port 2
     SETB P3.4            ; Set RS = 1 for data mode
     CLR P3.5             ; Set R/W = 0 for write mode
     SETB P3.6            ; Set E high for pulse
+	ACALL DELAY          ; Prepare for sending command to LCD
     CLR P3.6             ; Set E low for H-to-L pulse
+    ACALL DELAY          ; Prepare for sending command to LCD
     RET
 
 
@@ -227,7 +229,22 @@ HERE2:
 HERE:
     DJNZ R4, HERE        ; Decrement R4 and repeat until it reaches 0
     DJNZ R3, HERE2       ; Decrement R3 and repeat until it reaches 0
-    RET
-	
-END
+	RET
 
+;===============================
+; 3 seconds DELAY
+;===============================
+DELAY_3_SEC:
+    MOV R5, #30    
+D3:
+    MOV R4, #255   
+D2:
+    MOV R3, #255   
+D1:
+    DJNZ R3, D1
+    DJNZ R4, D2
+    DJNZ R5, D3
+    RET
+
+
+END
