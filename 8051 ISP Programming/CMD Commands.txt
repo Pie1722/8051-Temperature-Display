@@ -1,0 +1,8 @@
+chip erase code- 
+
+"C:\Program Files (x86)\Arduino\hardware\tools\avr\bin\avrdude.exe" -C C:/AVR8051.conf -c stk500v1 -P COM10 -p 89s51 -b 19200 -e
+
+led blink
+
+"C:\Program Files (x86)\Arduino\hardware\tools\avr\bin\avrdude.exe" -C C:/AVR8051.conf -c stk500v1 -P COM10 -p 89s51 -b 19200 -U flash:w:"E:\Member_Files\Aravind\Project\8051\Objects\0804 8051.hex":a
+
