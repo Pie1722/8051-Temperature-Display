@@ -63,15 +63,17 @@ R4 -> STORAGE FOR HIGHER BYTE
 
 R5 -> STORAGE FOR LOWER BYTE
 
+---
 
-ASCII_LCD =======================
+ASCII_LCD 
 
 R0 -> USED FOR GETTING VALUES FROM 64H TO 60H 
 
 R7 -> USED FOR LOOP COUNTER
 
+---
 
-DELAY ==========================
+DELAY 
 
 R3 & R4 & R5 USED FOR LOOP COUNTER 
 
