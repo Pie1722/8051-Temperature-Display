@@ -64,7 +64,7 @@ R4 -> STORAGE FOR HIGHER BYTE
 
 R5 -> STORAGE FOR LOWER BYTE
 
-
+---
 
 ASCII_LCD 
 
@@ -72,7 +72,7 @@ R0 -> USED FOR GETTING VALUES FROM 64H TO 60H
 
 R7 -> USED FOR LOOP COUNTER
 
-
+---
 
 DELAY 
 
@@ -84,10 +84,12 @@ R3 & R4 & R5 USED FOR LOOP COUNTER
 ## Without Backlight
 ![IMG_20250921_225855](https://github.com/user-attachments/assets/b2629f65-e25c-4fcc-9f33-d57beccc4d9e)
 
+---
 
 ## With Backlight [Low Intensity]
 ![IMG_20250921_225655](https://github.com/user-attachments/assets/b70e2c40-c2b1-41ae-a41a-6bee95f2ca8d)
 
+---
 
 ## Solder 
 ![IMG_20250921_225920](https://github.com/user-attachments/assets/a887a78e-ded1-4925-86ac-286b13d58e37)
