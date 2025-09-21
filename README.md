@@ -11,7 +11,7 @@
  So vref is 1.58 and i.e 1.58/256 = 0.006177875 for which we store 61 as constant at the start of multiplication.
  
  The code for conversion of HEX to DECIMAL is provided at KEIL_DIV Folder.
-
+---
 # Delay Calculation:
 
 To estimate the total time delay, we assume the 8051 runs with a 12 MHz clock, and each instruction takes 1 machine cycle (1 µs) unless otherwise stated.
@@ -37,13 +37,13 @@ Each DJNZ R3, D1 takes 2 µs →
 R4 and R5 add neglibile delay so it is around 2.5s to 2.6s
 
 To generate perfect delay usage of timer is required.
-
+---
 # Circuit Schematic
 
  ![image](https://github.com/user-attachments/assets/8714311c-b4a4-4a83-b304-25cd86ac6d96)
 
 https://github.com/user-attachments/assets/7c52b8ff-2e1d-4e30-a17e-e1210c6bced4
-
+---
 # Registers Used In 8051
 
 R0 -> QUOTIENT STORAGE (50H TO 52H)
@@ -72,7 +72,7 @@ DELAY
 
 R3 & R4 & R5 USED FOR LOOP COUNTER 
 
-
+---
 # Hardware 
 
 ## Without Backlight
